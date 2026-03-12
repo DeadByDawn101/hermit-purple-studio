@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useComfyUI } from "./useComfyUI";
+import ModelManager from "./ModelManager";
 
 const WORKFLOWS = [
   { id: "txt2img", name: "Text → Image", icon: "✦", desc: "Generate images from a text prompt" },
@@ -322,7 +323,7 @@ export default function App() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           {/* Tabs */}
           <div style={{ display: "flex", borderBottom: "1px solid #1e1228", padding: "0 24px" }}>
-            {[["generate", "Generate"], ["history", `History (${history.length})`], ["queue", "Server Queue"]].map(([id, label]) => (
+            {[["generate", "Generate"], ["history", `History (${history.length})`], ["queue", "Server Queue"], ["models", "⬡ Models"]].map(([id, label]) => (
               <button key={id} onClick={() => { setTab(id); if (id === "queue") handleRefreshQueue(); }} style={{
                 padding: "12px 18px", background: "none", border: "none",
                 borderBottom: tab === id ? "2px solid #c084fc" : "2px solid transparent",
@@ -457,9 +458,15 @@ export default function App() {
                 }
               </div>
             )}
-          </div>
+            {tab === "models" && (
+              <ModelManager
+                host={host}
+                installedModels={models}
+                onRefresh={() => { addLog("Refreshing models from server…"); connect(host); }}
+                addLog={addLog}
+              />
+            )}
 
-          {/* Log console */}
           <div style={{ borderTop: "1px solid #1e1228", background: "#080410", height: 110, display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "6px 14px 4px", fontSize: 9, color: "#3d2850", letterSpacing: "0.12em" }}>CONSOLE LOG</div>
             <div ref={logRef} style={{ flex: 1, overflowY: "auto", padding: "0 14px 10px" }}>
