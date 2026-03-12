@@ -251,6 +251,45 @@ npx serve dist -l 3000
 
 ---
 
+
+## 🧠 Local ANE Inference (Apple Silicon)
+
+Hermit Purple Studio is designed to work with the [ANE project](https://github.com/DeadByDawn101/ANE) — a reverse-engineered bridge to Apple's Neural Engine — for **local, private LLM inference** on Apple Silicon Macs.
+
+### Tiered Inference Architecture
+
+```
+Your Prompt
+    │
+    ├─► ANE (Apple Neural Engine) ── Small/fast tasks, runs locally, free & private
+    │         │
+    │         └─ Too large? ──────── Anthropic API → Claude Opus
+    │
+    └─► ComfyUI (GPU) ──────────────── Image generation (existing)
+```
+
+### Why ANE?
+
+| | ANE | GPU | Anthropic API |
+|-|-----|-----|---------------|
+| Cost | Free | Free | Per token |
+| Privacy | 100% local | 100% local | Cloud |
+| Power | ~1W | 15–75W | N/A |
+| Speed (≤1B) | Fast | Faster | Network-bound |
+| Models >7B | ❌ Not yet | ✅ | ✅ |
+
+The ANE runs at extremely low power, is always-on, and never leaves your Mac. For anything that exceeds local capacity, the system automatically routes to Claude Opus via the Anthropic API.
+
+### Setup
+
+1. Follow the [ANE setup guide](https://github.com/DeadByDawn101/ANE#-getting-started) to build `libane_bridge.dylib`
+2. Point Hermit Purple Studio at your ANE server (same Tailscale setup as ComfyUI)
+3. Set your `ANTHROPIC_API_KEY` for Opus fallback
+
+> ANE integration is in active development. See the [ANE repo](https://github.com/DeadByDawn101/ANE) for current status.
+
+---
+
 ## 🌿 Tech Stack
 
 | Layer | Tech |
@@ -261,6 +300,8 @@ npx serve dist -l 3000
 | Realtime | Native WebSocket (`/ws`) for live step progress |
 | Model downloads | HuggingFace `resolve/main` URLs via browser `fetch` |
 | Remote access | Tailscale (WireGuard mesh VPN) |
+| Local LLM inference | ANE bridge (`libane_bridge.dylib`) |
+| Cloud LLM fallback | Anthropic API (Claude Opus) |
 
 ---
 
