@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useComfyUI } from "./useComfyUI";
 import ModelManager from "./ModelManager";
+import ANEPanel from "./ANEPanel";
 
 const WORKFLOWS = [
   { id: "txt2img", name: "Text → Image", icon: "✦", desc: "Generate images from a text prompt" },
@@ -323,12 +324,13 @@ export default function App() {
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           {/* Tabs */}
           <div style={{ display: "flex", borderBottom: "1px solid #1e1228", padding: "0 24px" }}>
-            {[["generate", "Generate"], ["history", `History (${history.length})`], ["queue", "Server Queue"], ["models", "⬡ Models"]].map(([id, label]) => (
+            {[["generate", "Generate"], ["history", `History (${history.length})`], ["queue", "Server Queue"], ["models", "⬡ Models"], ["ane", "⚡ ANE"]].map(([id, label]) => (
               <button key={id} onClick={() => { setTab(id); if (id === "queue") handleRefreshQueue(); }} style={{
                 padding: "12px 18px", background: "none", border: "none",
                 borderBottom: tab === id ? "2px solid #c084fc" : "2px solid transparent",
-                color: tab === id ? "#c084fc" : "#6b5878",
-                cursor: "pointer", fontSize: 12, fontFamily: "monospace", marginBottom: -1
+                color: tab === id ? (id === "ane" ? "#22d3ee" : "#c084fc") : "#6b5878",
+                cursor: "pointer", fontSize: 12, fontFamily: "monospace", marginBottom: -1,
+                boxShadow: (tab === id && id === "ane") ? "0 2px 12px #22d3ee33" : "none",
               }}>{label}</button>
             ))}
           </div>
@@ -466,6 +468,18 @@ export default function App() {
                 addLog={addLog}
               />
             )}
+            {tab === "ane" && (
+              <ANEPanel
+                addLog={addLog}
+                comfyPrompt={params.prompt}
+                onEnhancedPrompt={(enhanced) => {
+                  set("prompt")(enhanced);
+                  setTab("generate");
+                }}
+              />
+            )}
+
+          </div>
 
           <div style={{ borderTop: "1px solid #1e1228", background: "#080410", height: 110, display: "flex", flexDirection: "column" }}>
             <div style={{ padding: "6px 14px 4px", fontSize: 9, color: "#3d2850", letterSpacing: "0.12em" }}>CONSOLE LOG</div>
